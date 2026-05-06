@@ -44,18 +44,35 @@ def step(icon, msg, color=WHITE):
     print(f"  {color}{icon}  {WHITE}{msg}{RESET}")
 
 def install_ffmpeg():
-    if platform.system() == "Linux":
-        step("Checking ffmpeg...", CYAN)
-        result = subprocess.run(
-            ["which", "ffmpeg"],
-            capture_output=True
-        )
+    system = platform.system()
+    
+    if system == "Linux":
+        step("Checking ffmpeg...", "", CYAN)
+        result = subprocess.run(["which", "ffmpeg"], capture_output=True)
         if result.returncode != 0:
-            step("Installing ffmpeg via apt...", CYAN)
+            step("Installing ffmpeg via apt...", "", CYAN)
             subprocess.run(["sudo", "apt", "install", "-y", "ffmpeg"])
-            step(f"{GREEN}ffmpeg installed", GREEN)
+            step("ffmpeg installed successfully", GREEN)
         else:
-            step(f"{GREEN}ffmpeg already installed", GREEN)
+            step("ffmpeg already installed", GREEN)
+
+    elif system == "Windows":
+        step("Checking ffmpeg...", "", CYAN)
+        result = subprocess.run(["where", "ffmpeg"], capture_output=True)
+        if result.returncode != 0:
+            step("Installing ffmpeg via winget...", "", CYAN)
+            result = subprocess.run(
+                ["winget", "install", "ffmpeg", "--silent"],
+                capture_output=True
+            )
+            if result.returncode == 0:
+                step("✔", "ffmpeg installed successfully", GREEN)
+            else:
+                step("Could not auto-install ffmpeg.", YELLOW)
+                print(f"\n  {YELLOW}Please install it manually:{RESET}")
+                print(f"  {CYAN}https://ffmpeg.org/download.html{RESET}\n")
+        else:
+            step("✔", "ffmpeg already installed", GREEN)
  
  
 def main():
