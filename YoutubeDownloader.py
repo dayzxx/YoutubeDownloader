@@ -134,19 +134,23 @@ def get_output_dir() -> str:
     return path
  
  
-def download(url: str, fmt: str, output_dir: str, audio_only: bool = False):
+def download(url: str, fmt: str, output_dir: str, audio_only: bool = False, playlist: bool = False):
     print(f"\n{CYAN}Downloading…{RESET}\n")
     print(SEPARATOR)
- 
-    cmd = ["yt-dlp", "-f", fmt, "--progress", "-o", f"{output_dir}/%(title)s.%(ext)s"]
- 
+
+    if playlist:
+        output_template = f"{output_dir}/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s"
+        cmd = ["yt-dlp", "-f", fmt, "--progress", "--yes-playlist", "-o", output_template]
+    else:
+        cmd = ["yt-dlp", "-f", fmt, "--progress", "--no-playlist", "-o", f"{output_dir}/%(title)s.%(ext)s"]
+
     if audio_only:
         cmd += ["--extract-audio", "--audio-format", "mp3", "--audio-quality", "0"]
     else:
         cmd += ["--merge-output-format", "mp4"]
- 
+
     cmd.append(url)
- 
+
     try:
         process = subprocess.run(cmd)
         print(SEPARATOR)
@@ -157,31 +161,37 @@ def download(url: str, fmt: str, output_dir: str, audio_only: bool = False):
             print(f"\n{RED}An error occurred.{RESET}")
     except KeyboardInterrupt:
         print(f"\n{YELLOW}Download cancelled.{RESET}")
- 
- 
+
+
 def main():
     print_header()
     check_ytdlp()
     print_header()
- 
+
     print(f"\n{WHITE}Paste the YouTube URL (or playlist):{RESET}")
     url = input(f"{CYAN}{RESET}").strip()
     if not url:
         print(f"{RED}Empty URL, aborting.{RESET}")
         sys.exit(0)
- 
+
     print_header()
     print(f"\n{GRAY}URL: {url}{RESET}")
     fmt = preset_menu()
- 
+
     audio_only = False
     if fmt == "__manual__":
         fmt = manual_format_selection(url)
     elif fmt == "bestaudio":
         audio_only = True
- 
+
+    print(f"\n{BOLD}{WHITE}  Playlist or single video?{RESET}\n")
+    print(f"  {YELLOW}1{RESET}. {WHITE}Single video only{RESET}")
+    print(f"  {YELLOW}2{RESET}. {WHITE}Full playlist{RESET}")
+    playlist_choice = input(f"\n{WHITE}Your choice: {RESET}").strip()
+    playlist_mode = playlist_choice == "2"
+
     output_dir = get_output_dir()
- 
+
     print_header()
     print(f"\n  {BOLD}{WHITE}Summary:{RESET}")
     print(f"  {GRAY}URL   :{RESET} {url}")
@@ -192,16 +202,16 @@ def main():
     if go != "y":
         print(f"{YELLOW}Cancelled.{RESET}")
         sys.exit(0)
- 
-    download(url, fmt, output_dir, audio_only)
- 
+
+    download(url, fmt, output_dir, audio_only, playlist_mode)
+
     again = input(f"\n{WHITE}Download another video? (y/n): {RESET}").strip().lower()
     if again == "y":
         main()
     else:
         sys.exit(0)
- 
- 
+
+
 if __name__ == "__main__":
     try:
         main()
