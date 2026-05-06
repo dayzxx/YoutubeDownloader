@@ -63,6 +63,8 @@ def main():
     print(LOGO)
     print(SEP)
     print(f"\n{BOLD}{WHITE}Installing dependencies…{RESET}\n")
+
+    install_ffmpeg()
  
     all_ok = True
     for pkg in REQUIREMENTS:
