@@ -4,6 +4,7 @@ import os
 import webbrowser
 import time
 import pathlib
+import platform
  
 RED    = "\033[91m"
 WHITE  = "\033[97m"
@@ -41,6 +42,20 @@ def clear():
  
 def step(icon, msg, color=WHITE):
     print(f"  {color}{icon}  {WHITE}{msg}{RESET}")
+
+def install_ffmpeg():
+    if platform.system() == "Linux":
+        step("Checking ffmpeg...", CYAN)
+        result = subprocess.run(
+            ["which", "ffmpeg"],
+            capture_output=True
+        )
+        if result.returncode != 0:
+            step("Installing ffmpeg via apt...", CYAN)
+            subprocess.run(["sudo", "apt", "install", "-y", "ffmpeg"])
+            step(f"{GREEN}ffmpeg installed", GREEN)
+        else:
+            step(f"{GREEN}ffmpeg already installed", GREEN)
  
  
 def main():
