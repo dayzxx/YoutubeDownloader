@@ -53,7 +53,7 @@ def main():
     for pkg in REQUIREMENTS:
         step(f"Installing {CYAN}{pkg}{RESET}…", CYAN)
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", pkg, "--quiet"],
+            [sys.executable, "-m", "pip", "install", pkg, "--quiet", "--break-system-packages"],
             capture_output=True, text=True
         )
         if result.returncode == 0:
